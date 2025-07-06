@@ -11,9 +11,11 @@ include(CheckCXXCompilerFlag)
         add_compile_options(-march=native)
     endif()
 
+
 include(cmake/CPM.cmake)
 CPMAddPackage("gh:fmtlib/fmt#10.2.1")
 CPMAddPackage("gh:lemire/counters#v1.0.1")
+CPMAddPackage("gh:fastfloat/fast_float#v8.0.2")
 
 CPMAddPackage(
     NAME curl
@@ -33,6 +35,20 @@ target_link_libraries(benchmark PRIVATE fmt::fmt)
 target_link_libraries(benchmark PRIVATE counters)
 target_link_libraries(benchmark PRIVATE curl)
 
+
+add_executable(superscalar benchmarks/superscalar.cpp)
+target_link_libraries(superscalar PRIVATE fmt::fmt)
+target_link_libraries(superscalar PRIVATE counters)
+target_link_libraries(superscalar PRIVATE fast_float)
+
+
+
+
+
+add_executable(delta benchmarks/delta.cpp)
+target_link_libraries(delta PRIVATE fmt::fmt)
+target_link_libraries(delta PRIVATE counters)
+target_compile_options(delta PRIVATE -fno-vectorize)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
