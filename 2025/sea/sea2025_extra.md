@@ -125,3 +125,29 @@
 ## Slide 13: Questions
 - Open floor for discussion
 - How can we further bridge the hardware-software gap?
+
+
+
+
+# Background
+
+* Bitmap indexes (Google Procella, Lucene, Git, etc.)
+* *Fastest JSON parser in the world*
+* Number parsing at high speed (GCC, C#/.NET, Rust, Go, main web browsers such as Safari and Chrome)
+* Fast unicode functions (main web browsers)
+* Random number generation (Linux kernel, FreeBSD libc library, Go, Julia, C# runtime, Numpy, Swift standard library)
+* URL parsing (Node.js)
+* DNS (zone files)
+
+---
+---
+
+# Memory
+
+
+`(Data Rate × Bus Width × Number of Channels) / 8`
+
+- Bus Width: 64 bits
+- Data Rate: *megatransfers per second* (or MHz)
+- DDR5 6000 MHz, two channels would be 96 GB/s
+- DDR6 might **double** the bandwidth
