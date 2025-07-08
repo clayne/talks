@@ -64,7 +64,7 @@ void pretty_print(const std::string& name, size_t num_values, event_aggregate ag
 }
 
 int main() {
-    constexpr size_t num_values = 10'000;
+    constexpr size_t num_values = 1'000'000;
     std::vector<uint64_t> data(num_values);
     std::iota(data.begin(), data.end(), 0);
 
