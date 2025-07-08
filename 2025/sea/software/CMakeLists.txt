@@ -79,6 +79,16 @@ add_executable(bench_random benchmarks/bench_random.cpp)
 target_link_libraries(bench_random PRIVATE fmt::fmt)
 target_link_libraries(bench_random PRIVATE counters)
 
+
+add_executable(bench_unroll benchmarks/bench_unroll.cpp)
+target_link_libraries(bench_unroll PRIVATE fmt::fmt)
+target_link_libraries(bench_unroll PRIVATE counters)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    target_compile_options(bench_unroll PRIVATE -fno-vectorize -fno-unroll-loops)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(bench_unroll PRIVATE -fno-tree-vectorize -fno-unroll-loops)
+endif()
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
