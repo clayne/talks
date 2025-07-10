@@ -55,6 +55,11 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 
+add_executable(deltavec benchmarks/delta.cpp)
+target_link_libraries(deltavec PRIVATE fmt::fmt)
+target_link_libraries(deltavec PRIVATE counters)
+
+
 add_executable(bench_utf16 benchmarks/bench_utf16.cpp)
 target_link_libraries(bench_utf16 PRIVATE fmt::fmt)
 target_link_libraries(bench_utf16 PRIVATE counters)
@@ -93,5 +98,9 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
+
+add_executable(bench_misses benchmarks/bench_misses.cpp)
+target_link_libraries(bench_misses PRIVATE fmt::fmt)
+target_link_libraries(bench_misses PRIVATE counters)
 
 

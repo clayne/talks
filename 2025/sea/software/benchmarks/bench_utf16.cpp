@@ -5,6 +5,9 @@
 #include <cstdint>
 #include <span>
 
+#if defined(__aarch64__) || defined(__ARM_NEON) || defined(__ARM_NEON__)
+#include "utf16neon.h"
+#endif
 bool is_valid_utf16_ff(const std::span<uint16_t> code_units) {
     // Transition table: indexed by high byte, maps current state to next state
     // 0 = Initial, 1 = LowSurrogate, 2 = Invalid (sticky)
@@ -98,7 +101,6 @@ bool is_valid_utf16(const std::span<uint16_t> code_units) {
     }
     return true;
 }
-
 void pretty_print(const std::string& name, size_t num_values,
                   event_aggregate agg) {
   fmt::print("{:<50} : ", name);
@@ -193,6 +195,15 @@ int main() {
             (void)ok;
         });
         pretty_print("is_valid_utf16_ff (mixed, alternate)", num_values, mixed_alt_ff_agg);
+#if defined(__aarch64__) || defined(__ARM_NEON) || defined(__ARM_NEON__)
+        std::vector<uint16_t> output_utf16;
+        output_utf16.reserve(num_values);
+
+        auto mixed_simd_agg = bench([&mixed_utf16,&output_utf16]() {
+            utf16fix_neon_64bits(reinterpret_cast<const char16_t*>(mixed_utf16.data()), num_values, reinterpret_cast<char16_t*>(output_utf16.data()));
+        });
+        pretty_print("fix mixed_simd_agg (mixed, random)", num_values, mixed_simd_agg);
+#endif
     }
     return 0;
 }
