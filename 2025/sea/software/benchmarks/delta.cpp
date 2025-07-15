@@ -7,53 +7,6 @@
 #include <span>
 
 namespace array_ops {
-// Unrolled by 8: successive differences from src to dst
-template <typename T>
-__attribute__((noinline))
-constexpr void successive_differences_to_unrolled8(std::span<const T> src, std::span<T> dst) {
-    if (src.size() == 0 || dst.size() == 0) return;
-    size_t n = std::min(src.size(), dst.size());
-    if (n == 0) return;
-    dst[0] = src[0];
-    size_t i = 1;
-    for (; i + 7 < n; i += 8) {
-        dst[i]   = src[i]   - src[i-1];
-        dst[i+1] = src[i+1] - src[i];
-        dst[i+2] = src[i+2] - src[i+1];
-        dst[i+3] = src[i+3] - src[i+2];
-        dst[i+4] = src[i+4] - src[i+3];
-        dst[i+5] = src[i+5] - src[i+4];
-        dst[i+6] = src[i+6] - src[i+5];
-        dst[i+7] = src[i+7] - src[i+6];
-    }
-    for (; i < n; ++i) {
-        dst[i] = src[i] - src[i-1];
-    }
-}
-
-// Unrolled by 8: prefix sum from src to dst
-template <typename T>
-__attribute__((noinline))
-constexpr void prefix_sum_to_unrolled8(std::span<const T> src, std::span<T> dst) {
-    if (src.size() == 0 || dst.size() == 0) return;
-    size_t n = std::min(src.size(), dst.size());
-    if (n == 0) return;
-    dst[0] = src[0];
-    size_t i = 1;
-    for (; i + 7 < n; i += 8) {
-        dst[i]   = dst[i-1]   + src[i];
-        dst[i+1] = dst[i]     + src[i+1];
-        dst[i+2] = dst[i+1]   + src[i+2];
-        dst[i+3] = dst[i+2]   + src[i+3];
-        dst[i+4] = dst[i+3]   + src[i+4];
-        dst[i+5] = dst[i+4]   + src[i+5];
-        dst[i+6] = dst[i+5]   + src[i+6];
-        dst[i+7] = dst[i+6]   + src[i+7];
-    }
-    for (; i < n; ++i) {
-        dst[i] = dst[i-1] + src[i];
-    }
-}
 // Unrolled by 4: successive differences from src to dst
 template <typename T>
 __attribute__((noinline))
@@ -208,16 +161,5 @@ int main(int argc, char **argv) {
             array_ops::prefix_sum_to_unrolled(std::span<const int>(values), std::span<int>(dst));
         });
         pretty_print("prefix_sum (dst, unrolled)", num_values, prefix_dst_agg_u);
-        // Out-of-place successive differences
-        auto diff_dst_agg_u8 = bench([&values, &dst]() {
-            array_ops::successive_differences_to_unrolled8(std::span<const int>(values), std::span<int>(dst));
-        });
-        pretty_print("successive_differences (dst, unrolled8)", num_values, diff_dst_agg_u8);
-
-        // Out-of-place prefix sum
-        auto prefix_dst_agg_u8 = bench([&values, &dst]() {
-            array_ops::prefix_sum_to_unrolled8(std::span<const int>(values), std::span<int>(dst));
-        });
-        pretty_print("prefix_sum (dst, unrolled8)", num_values, prefix_dst_agg_u8);
     }
 }
