@@ -38,18 +38,28 @@ for file in "${files[@]}"; do
   if [ -d "$srcdir" ]; then
     cp -r "$srcdir"/* "$dstdir"/ 2>/dev/null || true
   fi
-  # Generate the HTML in the target directory by running marp in a separate shell
-  out="$(basename "$file" .md).html"
-  marp --html --allow-local-files "$file" -o "$dstdir/$out"
-  #echo "Running marp in a separate shell for $file"
-  #bash -c "cd \"$dstdir\" && marp \"$file\" --html --allow-local-files -o \"$out\""
+  # Generate the HTML and PDF in the target directory
+  out_html="$(basename "$file" .md).html"
+  out_pdf="$(basename "$file" .md).pdf"
+  marp --html --allow-local-files "$file" -o "$dstdir/$out_html"
+  marp --pdf --allow-local-files "$file" -o "$dstdir/$out_pdf"
+
   # Check if HTML file was generated and report its size
-  htmlpath="$dstdir/$out"
+  htmlpath="$dstdir/$out_html"
   if [ -f "$htmlpath" ]; then
     size=$(stat -c %s "$htmlpath" 2>/dev/null || stat -f %z "$htmlpath" 2>/dev/null)
     echo "Generated $htmlpath ($size bytes)"
   else
     echo "File $htmlpath was not generated."
+  fi
+
+  # Check if PDF file was generated and report its size
+  pdfpath="$dstdir/$out_pdf"
+  if [ -f "$pdfpath" ]; then
+    size=$(stat -c %s "$pdfpath" 2>/dev/null || stat -f %z "$pdfpath" 2>/dev/null)
+    echo "Generated $pdfpath ($size bytes)"
+  else
+    echo "File $pdfpath was not generated."
   fi
 done
 
@@ -66,9 +76,10 @@ while read year; do
     case "$file" in \#*) continue ;; esac
     relpath="${file%.md}"
     htmlpath="$relpath.html"
+    pdfpath="$relpath.pdf"
     title=$(grep -m 1 '^title:' "$file" | sed 's/^title: //')
     description=$(grep -m 1 '^description:' "$file" | sed 's/^description: //')
-    echo "<li><a href='$htmlpath' title='$description'>$title</a></li>" >> public/index.html
+    echo "<li><a href='$htmlpath' title='$description'>$title (HTML)</a> (<a href='$pdfpath' title='$description'>PDF</a>)</li>" >> public/index.html
   done
   echo "</ul>" >> public/index.html
 done < years.txt
