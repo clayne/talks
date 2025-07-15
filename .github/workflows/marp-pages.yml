@@ -27,7 +27,20 @@ jobs:
           while IFS= read -r file; do
             [ -z "$file" ] && continue
             case "$file" in \#*) continue ;; esac
-            out="public/$(basename "$file" .md).html"
+            # Relative path without extension
+            relpath="${file%.md}"
+            # Source directory (where the .md is)
+            srcdir=$(dirname "$file")
+            # Target directory in public/
+            dstdir="public/$srcdir"
+            mkdir -p "$dstdir"
+            # Copy all contents from the source directory (files and subdirectories)
+            if [ -d "$srcdir" ]; then
+              cp -r "$srcdir"/* "$dstdir"/ 2>/dev/null || true
+            fi
+            # Generate the HTML in the target directory
+            out="$dstdir/$(basename "$file" .md).html"
+            echo marp "$file" --html --allow-local-files --output "$out"
             if ! marp "$file" --html --allow-local-files --output "$out"; then
               echo "Error while converting $file"
             fi
@@ -35,12 +48,13 @@ jobs:
 
       - name: Add index.html listing all talks
         run: |
-          echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Daniel Lemire Talks</title><link rel="stylesheet" href="styles.css"></head><body><h1>Talks</h1><ul>' > public/index.html
+          echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Daniel Lemire's talks</title><link rel="stylesheet" href="styles.css"></head><body><h1>Daniel Lemire's talks</h1><ul>' > public/index.html
           while IFS= read -r file; do
             [ -z "$file" ] && continue
             case "$file" in \#*) continue ;; esac
-            talkname=$(basename "$file" .md)
-            echo "<li><a href='$talkname.html'>$talkname</a></li>" >> public/index.html
+            relpath="${file%.md}"
+            htmlpath="$relpath.html"
+            echo "<li><a href='$htmlpath'>$htmlpath</a></li>" >> public/index.html
           done < .marp-talks
           echo '</ul></body></html>' >> public/index.html
           cp css/styles.css public/ || true
