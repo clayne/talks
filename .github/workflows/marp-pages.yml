@@ -26,7 +26,8 @@ jobs:
         run: |
           while IFS= read -r file; do
             [ -z "$file" ] && continue
-            out="public/$(basename \"$file\" .md).html"
+            case "$file" in \#*) continue ;; esac
+            out="public/$(basename "$file" .md).html"
             if ! marp "$file" --html --allow-local-files --output "$out"; then
               echo "Error while converting $file"
             fi
@@ -37,6 +38,7 @@ jobs:
           echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Daniel Lemire Talks</title><link rel="stylesheet" href="styles.css"></head><body><h1>Talks</h1><ul>' > public/index.html
           while IFS= read -r file; do
             [ -z "$file" ] && continue
+            case "$file" in \#*) continue ;; esac
             talkname=$(basename "$file" .md)
             echo "<li><a href='$talkname.html'>$talkname</a></li>" >> public/index.html
           done < .marp-talks
