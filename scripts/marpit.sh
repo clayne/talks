@@ -66,8 +66,9 @@ while read year; do
     case "$file" in \#*) continue ;; esac
     relpath="${file%.md}"
     htmlpath="$relpath.html"
-    basename=$(basename "$htmlpath")
-    echo "<li><a href='$htmlpath'>$basename</a></li>" >> public/index.html
+    title=$(grep -m 1 '^title:' "$file" | sed 's/^title: //')
+    description=$(grep -m 1 '^description:' "$file" | sed 's/^description: //')
+    echo "<li><a href='$htmlpath' title='$description'>$title</a></li>" >> public/index.html
   done
   echo "</ul>" >> public/index.html
 done < years.txt
