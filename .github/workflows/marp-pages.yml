@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install Marp CLI
         run: npm install -g @marp-team/marp-cli
 
@@ -42,7 +42,7 @@ jobs:
             out="$(basename "$file" .md).html"
             echo "(cd \"$dstdir\" && ls -1)"
             echo "(cd \"$dstdir\" && marp $file --html --allow-local-files)"
-            if ! (cd "$dstdir" && marp "$file" --html --allow-local-files); then
+            if ! (cd "$dstdir" && marp "$file" --html --allow-local-files -o "$out"); then
               echo "Error while converting $file"
             fi
           done < .marp-talks
@@ -60,7 +60,8 @@ jobs:
               case "$file" in \#*) continue ;; esac
               relpath="${file%.md}"
               htmlpath="$relpath.html"
-              echo "<li><a href='$htmlpath'>$htmlpath</a></li>" >> public/index.html
+              basename=$(basename "$htmlpath")
+              echo "<li><a href='$htmlpath'>$basename</a></li>" >> public/index.html
             done
             echo "</ul>" >> public/index.html
           done < years.txt
