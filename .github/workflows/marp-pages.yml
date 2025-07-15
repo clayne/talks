@@ -24,9 +24,8 @@ jobs:
 
       - name: Build Marp talks to HTML
         run: |
-          while IFS= read -r file; do
+          grep -v '^#' .marp-talks | while IFS= read -r file; do
             [ -z "$file" ] && continue
-            case "$file" in \#*) continue ;; esac
             # Relative path without extension
             relpath="${file%.md}"
             # Source directory (where the .md is)
@@ -40,12 +39,11 @@ jobs:
             fi
             # Generate the HTML in the target directory by running marp in that directory
             out="$(basename "$file" .md).html"
-            echo "(cd \"$dstdir\" && ls -1)"
-            echo "(cd \"$dstdir\" && marp $file --html --allow-local-files)"
+            echo "(cd \"$dstdir\" && marp $file --html --allow-local-files -o $out)"
             if ! (cd "$dstdir" && marp "$file" --html --allow-local-files -o "$out"); then
               echo "Error while converting $file"
             fi
-          done < .marp-talks
+          done
 
       - name: Add index.html listing all talks
         run: |
