@@ -40,8 +40,9 @@ jobs:
             fi
             # Generate the HTML in the target directory by running marp in that directory
             out="$(basename "$file" .md).html"
-            echo "(cd \"$dstdir\" && marp ../../$file --html --allow-local-files --output $out)"
-            if ! (cd "$dstdir" && marp ../../"$file" --html --allow-local-files --output "$out"); then
+            echo "(cd \"$dstdir\" && ls -1)"
+            echo "(cd \"$dstdir\" && marp $file --html --allow-local-files)"
+            if ! (cd "$dstdir" && marp "$file" --html --allow-local-files); then
               echo "Error while converting $file"
             fi
           done < .marp-talks
